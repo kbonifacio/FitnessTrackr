@@ -27,14 +27,18 @@ async function createActivity({name, description}){
 }
 
 async function updateActivity({ id, name, description }){
-    const { rows:[newActivity] } = await client.query(`
-        UPDATE activities
-        SET name = $2, description = $3
-        WHERE id = $1
+    try {
+        const { rows:[newActivity] } = await client.query(`
+            UPDATE activities
+            SET name = $2, description = $3
+            WHERE id = $1
+            
+            RETURNING id, name, description;
+        `,[id, name, description])
+        return newActivity;
+    } catch (error) {
         
-        RETURNING id, name, description;
-    `,[id, name, description])
-    return newActivity;
+    }
 }
 
 module.exports = {
