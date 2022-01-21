@@ -1,4 +1,7 @@
 const routinesRouter = require("express").Router();
+const {
+    getAllPublicRoutines
+} = require("../db")
 
 routinesRouter.get("/routines", (req, res )=> {
     try {
@@ -9,5 +12,13 @@ routinesRouter.get("/routines", (req, res )=> {
     
 })
 
+routinesRouter.get("/", async (req, res, next)=>{
+    try {
+        const routines = await getAllPublicRoutines();
+        res.send(routines)
+    } catch (error) {
+        
+    }
+})
 
 module.exports = routinesRouter;
