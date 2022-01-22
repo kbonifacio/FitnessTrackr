@@ -1,8 +1,10 @@
 const healthRouter = require("express").Router();
 
-healthRouter.get("/health", (req, res )=> {
+healthRouter.get("/", (req, res )=> {
     try {
-        res.send('testing that all is well')
+        res.send({
+            message:"testing that all is well"
+        })
     } catch (error) {
         throw error
     }
