@@ -1,12 +1,15 @@
 const client = require('./client');
 
 async function getActivityById(id){
-    const { rows } = await client.query(`
+    try {
+        const { rows } = await client.query(`
         SELECT * FROM activities
         WHERE id = $1;
     `, [id])
-    
     return rows;
+    } catch (error) {
+        throw error
+    }
 }
 
 async function getAllActivities(){
