@@ -14,8 +14,8 @@ async function getActivityById(id){
 
 async function getAllActivities(){
     const { rows } = await client.query(`
-        SELECT id, name, description FROM activities;
-    `,[])
+        SELECT * FROM activities;
+    `)
     return rows;
 }
 

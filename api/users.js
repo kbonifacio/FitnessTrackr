@@ -1,45 +1,59 @@
 const usersRouter = require("express").Router();
+const { isLoggedIn } = require("./utils")
 const jsonWebToken =require("jsonwebtoken");
-const { jwt_Secret ="superDuperSecret"} = process.env
+const { createUser, getUserByUsername, getPublicRoutinesByUser } = require("../db");
 
-const { createUser, getAllRoutinesByUser, getPublicRoutinesByUser, getUserByUsername } = require("../db");
 
-usersRouter.post("/register", async (req, res, next) =>{
+usersRouter.post("/login", async (req, res, next) => { 
+    const {username, password} = req.body;
+    // username is coming up undefined
+
+    if (!username || !password) {
+        next({
+            name: "InvalidCredentials",
+            message: "A username and password are required"
+        })
+        res.send(406)
+    }
+
     try {
-        const { username, password } = req.body;
-        const user = await getUserByUsername(username);
+        const user = await getUserByUsername({username});
+        if (username && password) {
 
-        if (user) {
-            res.status(401);
-            next({
-                name: "UserAlreadyExistsError",
-                message: "This username is already in use"
-            })
-        } else if (password.length < 8) {
-            res.status(401)
-            next({
-                name: "PasswordTooShortError",
-                message: "Password too short, please add more characters"
-            })
+            const token = jwt.sign({ 
+                id: user.id, 
+                username
+                }, process.env.JWT_SECRET, {
+                expiresIn: '1w'
+            });
+
+            res.send({message: "Successfully logged in", token})
         } else {
-            const newUser = await createUser({
-                username,
-                password
+            next({
+                name: "IncorrectCredentialsError",
+                message: "Name or password is incorrect"
             })
-            const token = jsonWebToken.sign({
-                id: user.id, username: user.username
-            }, jwt_Secret, 
-            { expiresIn: "1w"}
-            )
-            res.send({ newUser,message: "successful login", token})
+            res.send(409)
         }
-        
     } catch (error) {
-        throw error
+        next(error)
     }
 })
 
+//
+usersRouter.get("/me", isLoggedIn, async (req, res, next) =>{
+    if(isLoggedIn){
+        try {
+            res.send(req.user);
+        } catch (error) {
+            next (error);
+        }
+    }
+
+} )
+
 usersRouter.get("/:username/routines", async (req, res, next )=> {
+    const username = req.params
     try {
         const allUserRoutines = await getPublicRoutinesByUser({username:req.params.username})
         if (allUserRoutines) {
@@ -49,6 +63,18 @@ usersRouter.get("/:username/routines", async (req, res, next )=> {
         next ({name, message})
     }
     
+})
+
+usersRouter.get("/users/:username/routines", async (req, res, next) => {
+    const { username } = req.params.username
+    try {
+        const userRoutines = await getPublicRoutinesByUser({username})
+        if(userRoutines) {
+            res.send(userRoutines)
+        }
+    } catch (error) {
+        throw error
+    }
 })
 
 
