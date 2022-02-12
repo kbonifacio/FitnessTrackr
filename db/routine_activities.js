@@ -11,7 +11,7 @@ async function getRoutineActivityById(id){
     // console.log('routineActivityById',routine)
     return routine
     } catch (error) {
-        
+        throw error
     }
 }
 
@@ -80,7 +80,7 @@ async function getRoutineActivitiesByRoutine({ id }){
         `)
         return rows;
     } catch (error) {
-        
+        throw error
     }
 }
 

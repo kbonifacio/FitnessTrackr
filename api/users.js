@@ -13,82 +13,73 @@ usersRouter.post("/register", async (req, res, next) => {
                 name: "NotEnoughInformation",
                 message: "A username and password are required"
             })
-        }
-        if(_user){
+        } else if(_user){
             res.status(409)
             next({
                 name: "UserExists",
                 message: "A user by that username already exists"
             })
-        }
-        if(password.length < 8) {
+        } else if(password.length < 8) {
             res.status(406)
             next({
                 name: "PWLengthError",
                 message: "Password must be longer than 8 characters"
             })
+        } else {
+            const user = await createUser({
+                username: username, 
+                password: password 
+            });
+
+            const token = jwt.sign({
+                id: user.id,
+                username
+            }, process.env.JWT_SECRET, {
+                expiresIn: '1w'
+            })
+            res.send({
+                message: "Thank you for registering",
+                token, user
+            })
         }
-
-        const user = await createUser({
-            username: username, 
-            password: password 
-        });
-
-        const token = jwt.sign({
-            id: user.id,
-            username
-        }, process.env.JWT_SECRET, {
-            expiresIn: '1w'
-        })
-        res.send({
-            message: "Thank you for registering",
-            token, user})
-
     } catch (error) {
         next(error)
     }
-
 })
 
-usersRouter.post("/login", async (req, res, next) => { 
-    console.log("in userRouter.post")
+usersRouter.post("/login", async (req, res, next) => {
     const {username, password} = req.body;
-    // username is coming up undefined
-    console.log(req.body) 
-    res.send("Hello World")
-    // if (!username || !password) {
-    //     res.status(406)
-    //     next({
-    //         name: "NotEnoughInformation",
-    //         message: "Please supply both a name and password"
-    //     })
-    // }
-    // try {
-    //     const user = await getUser(username, password);
-    //     console.log("user25:", user)
-    //     if (!user) {
-    //         next({
-    //             name: "InvalidCredentials",
-    //             message: "Incorrect username or password"
-    //         })
-    //     } else { 
-    //         if(username && password){
-    //             const token = jwt.sign(
-    //                 { 
-    //                     id: user.id, 
-    //                     username
-    //                 }, process.env.JWT_SECRET, {
-    //                 expiresIn: '1w'
-    //             });
-    
-    //             res.send({
-    //                 message: "Successfully logged in", 
-    //                 token})
-    //         }
-    //     } 
-    // } catch (error) {
-    //     next(error)
-    // }
+
+    if (!username || !password) {
+        next({
+            name: "CredentialsMissing",
+            message: "Please supply both a name and password"
+        })
+        res.send(406)
+    }
+
+    try {
+        const user = await getUserByUsername(username);
+        if (username && password) {
+
+            const token = jwt.sign({ 
+                id: user.id, 
+                username
+                }, process.env.JWT_SECRET, {
+                expiresIn: '1w'
+            });
+
+            res.send({message: "You're logged in!", token})
+        } else {
+            next({
+                name: "InvalidCredentials",
+                message: "Name or password is incorrect"
+            })
+            res.send(409)
+        }
+    } catch (error) {
+        next(error)
+    }
 })
 
 

@@ -29,7 +29,7 @@ async function createActivity({name, description}){
         `, [name, description])
         return activity;
     } catch (error) {
-        
+        throw error
     }
 }
 
@@ -44,7 +44,7 @@ async function updateActivity({ id, name, description }){
         `,[id, name, description])
         return newActivity;
     } catch (error) {
-        
+        throw error
     }
 }
 
