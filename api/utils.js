@@ -1,5 +1,6 @@
 
 function isLoggedIn(req, res, next) {
+    console.log("isLoggedIn:", req.user)
     if(!req.user) {
         res.status(401);
         next({
@@ -10,4 +11,4 @@ function isLoggedIn(req, res, next) {
     next();
 }
 
-module.exports = { isLoggedIn };
+module.exports =  isLoggedIn ;

@@ -17,7 +17,6 @@ async function dropTables() {
   await client.query(
     `DROP TABLE IF EXISTS users, activities, routines, routine_activities;`
     )
-  console.log('Finished Dropping All Tables...');
 }
 
 async function createTables() {
@@ -56,7 +55,6 @@ async function createTables() {
           duration INTEGER
         )`    
     )
-  console.log("Finished building all tables...");
 }
 
 /* 

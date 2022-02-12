@@ -1,5 +1,5 @@
 const activitiesRouter = require("express").Router();
-const { isLoggedIn } = require("./utils")
+const isLoggedIn = require("./utils")
 const {
     getAllActivities, 
     getActivityById,
@@ -8,10 +8,7 @@ const {
     getPublicRoutinesByActivity
 } = require("../db")
 
-
-// activity name is undefined
 activitiesRouter.get("/", async (req, res, next)=>{
-    console.log("api router")
     try {
         const activities = await getAllActivities();
         res.send(activities)
@@ -31,7 +28,7 @@ activitiesRouter.post("/", isLoggedIn, async (req, res, next) =>{
         })
     }else{
         try {
-            const newActivity = await createActivity({name, description});
+            const newActivity = await createActivity({ name, description});
             if(newActivity) {
                 res.send(newActivity)
             }

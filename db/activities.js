@@ -20,13 +20,17 @@ async function getAllActivities(){
 }
 
 async function createActivity({name, description}){
-    const { rows: [activity] } = await client.query(`
-        INSERT INTO activities(name, description)
-        VALUES ($1, $2)
-
-        RETURNING name, description
-    `, [name, description])
-    return activity;
+    try {
+        const { rows: [activity] } = await client.query(`
+            INSERT INTO activities(name, description)
+            VALUES ($1, $2)
+    
+            RETURNING *;
+        `, [name, description])
+        return activity;
+    } catch (error) {
+        
+    }
 }
 
 async function updateActivity({ id, name, description }){
@@ -36,7 +40,7 @@ async function updateActivity({ id, name, description }){
             SET name = $2, description = $3
             WHERE id = $1
             
-            RETURNING id, name, description;
+            RETURNING *;
         `,[id, name, description])
         return newActivity;
     } catch (error) {
